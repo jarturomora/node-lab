@@ -14,7 +14,7 @@ const config: Config = {
   onBrokenMarkdownLinks: 'warn',
   i18n: {
     defaultLocale: 'en',
-    locales: ['en'],
+    locales: ['en', 'es'],
   },
   presets: [
     [
@@ -48,6 +48,10 @@ const config: Config = {
         {
           href: 'https://github.com/YOUR_USERNAME/YOUR_REPO', // Update this
           label: 'GitHub',
+          position: 'right',
+        },
+        {
+          type: 'localeDropdown',
           position: 'right',
         },
       ],
