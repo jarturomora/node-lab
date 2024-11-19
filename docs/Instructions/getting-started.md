@@ -19,7 +19,7 @@ Next, let's make a few working directories
 
 ```
 cd
-mkdir -p preview/{node,config,socket,db,test-db,scripts,bin,logs}
+mkdir -p preview/{node,config,socket,test-db,scripts,bin,logs}
 ```
 
 Now, let's add a few path items to our `.bashrc` file

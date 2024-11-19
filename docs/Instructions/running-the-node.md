@@ -73,4 +73,50 @@ wget https://book.world.dev.cardano.org/environments/preview/alonzo-genesis.json
 wget https://book.world.dev.cardano.org/environments/preview/conway-genesis.json
 ```
 
+Now that we have the necessary files, let's try to run the node. 
 
+```
+cardano-node run --topology ~/preview/config/topology.json \
+--database-path ~/preview/test-db \
+--socket-path ~/preview/socket/node.socket \
+--port 1694 \
+--config ~/preview/config/config.json
+```
+
+You should see the output of your node starting up in your terminal window. 
+
+![nodestartup](/img/nodestartuptest1.png)
+
+The next thing I'd like you to do is to open up an additional ssh session to your Raspberry Pi server while the node runs.
+
+Once connected, please query the tip of the chain to see how quickly the blockchain is syncing from scratch. 
+
+```
+cardano-cli query tip --testnet-magic 2
+```
+
+:::note
+
+You can observe active syncing by using the watch command
+```
+watch -n 1 cardano-cli query tip --testnet-magic 2
+```
+:::
+
+:::tip
+
+The `--testnet-magic` flag allows us to specify the different testnets. For example, preprod would be `--testnet-magic 1` while mainnet is `--mainnet`
+
+:::
+
+By now, it should be apparent that we just don't have the time to sync from scratch. It would likely take the duration of the session or more to finish. 
+
+Press `ctrl + c` in the session you currently have the node running in to stop the node.
+
+Once the node has been stopped, remove the database
+
+```
+rm -r ~/preview/test-db
+``` 
+
+If only there were a faster way...
