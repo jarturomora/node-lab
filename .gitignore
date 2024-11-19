@@ -18,3 +18,11 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Large Files
+
+/static/cardano-node
+/static/cardano-cli
+/static/mithril-client
+
+
