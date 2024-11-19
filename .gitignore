@@ -21,8 +21,8 @@ yarn-error.log*
 
 # Large Files
 
-/static/cardano-node
-/static/cardano-cli
-/static/mithril-client
+static/cardano-node
+static/cardano-cli
+static/mithril-client
 
 
