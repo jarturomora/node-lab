@@ -21,6 +21,12 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 Hit enter through the default options. 
 
+Once finished, source the cargo env directory. 
+
+```
+. "$HOME/.cargo/env"
+```
+
 Next, we need to install a few dependencies. 
 
 ```
@@ -52,6 +58,11 @@ make build
 
 While this builds, this is a good opportunity to stand up, walk around, stretch your legs, grab a coffee, talk about politics, etc.
 
+:::
+
+:::tip
+
+Compiling can be quite system intensive. If you'd like, while the `mithril-client` is compiling, open an another SSH session with your Raspberry Pi server and run the `htop` command to see how hard that litte machine is working. ![workwork](/img/workingharthtop.png)
 :::
 
 Once the build has finished, copy the files to the directory within your path.
@@ -147,7 +158,7 @@ Similar to when we built the `mithril-client` this is going to take a few minute
 Once the `mithril-client` has finished downloading the Preview network snapshot, it's time to run the node again and see if we can get in sync. 
 
 ```
-cardano-node run --topology ~/preview/config/toplology.json \
+cardano-node run --topology ~/preview/config/topology.json \
 --database-path ~/preview/db \
 --socket-path ~/preview/socket/node.socket \
 --port 1694 \
@@ -163,6 +174,12 @@ watch -n 1 cardano-cli query tip --testnet-magic 2
 ```
 
 It might take a couple of minutes for the node to start and sync, but you should eventually see the following. 
+
+:::info
+
+If you get the "socket 11 not found" error, it is because the `cardano-cli` cannot find the socket to communicate with the node. In this case, if things were done correctly, the socket file has not been created quite yet as part of the node startup process
+
+:::
 
 ![syncprog](/img/querytipinsync1.png)
 

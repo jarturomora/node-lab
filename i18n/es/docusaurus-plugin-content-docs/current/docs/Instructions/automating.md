@@ -70,7 +70,7 @@ You'll notice that the variables set within this bash script more-or-less match 
 Make the script executable. 
 
 ```
-chmod +x node.sh
+chmod +x ~/preview/scripts/node.sh
 ```
 
 Test your script 

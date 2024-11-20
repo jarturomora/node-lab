@@ -23,8 +23,8 @@ So for this workshop we will lean on the gracious efforts of the [Armada Allianc
 Let's grab our statically compiled `cardano-node` and `cardano-cli` binaries from a local server (also a Raspberry Pi5) and copy them to the directory we added to our path `/home/n/preview/bin/`
 
 ```
-wget -O /home/n/preview/bin/ http://10.20.20.101:3001/cardano-node
-wget -O /home/n/preview/bin/ http://10.20.20.101:3001/cardano-cli 
+wget http://10.20.20.101:3001/cardano-node -O /home/n/preview/bin/cardano-node
+wget http://10.20.20.101:3001/cardano-cli -O /home/n/preview/bin/cardano-cli
 ```
 We need to ensure the binaries are executable
 
