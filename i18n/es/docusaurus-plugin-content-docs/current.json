@@ -10,5 +10,9 @@
   "sidebar.tutorialSidebar.category.Instructions": {
     "message": "Instructions",
     "description": "The label for category Instructions in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Next": {
+    "message": "Next",
+    "description": "The label for category Next in sidebar tutorialSidebar"
   }
 }
