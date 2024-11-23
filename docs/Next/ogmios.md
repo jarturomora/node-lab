@@ -18,7 +18,7 @@ wget http://10.20.20.101:3001/ogmios -O /home/n/preview/bin/ogmios
 Let's make the binary executable. 
 
 ```
-sudo chmod +x ~/preview/bin/ogmios
+chmod +x ~/preview/bin/ogmios
 ```
 
 Let's make this API endpoint available externally. 
@@ -64,6 +64,11 @@ Add the following to the `ogmios_start.sh` file you just opened in nano.
 
 Save and exit `ctrl + o` and `ctrl + x`.
 
+Make the script executable. 
+
+```
+chmod +x ~/preview/scripts/ogmios_start.sh
+```
 
 Let's test the script in our terminal window.
 
