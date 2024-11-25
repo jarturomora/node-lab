@@ -3,7 +3,7 @@ sidebar_label: 'Automating Things'
 sidebar_position: 4
 ---
 
-# Automating the Node
+# Automating the node
 
 :::info
 
@@ -11,17 +11,17 @@ Before going too much further, I'd like to talk about RTS options for `cardano-n
 
 :::
 
-**RTS** stands for Runtime System, which is a software layer for Haskell programs that allows for the customization of thing such as: 
-- Memory Management
-- Garbage Collection
+**RTS** stands for runtime system, which is a software layer for Haskell programs that allows for the customization of thing such as: 
+- Memory management
+- Garbage collection
 - Concurrency and parallelism
 - Exception handling
 
-RTS options are a Haskell specific feature that the `cardano-node` takes specific advantage of.
+RTS options are a Haskell-specific feature that the `cardano-node` takes specific advantage of.
 
-These options can be implemented by:
-- during the compliling of the node
-- as an override flag while running the node
+These options can be implemented, as follows:
+- during complation of the node
+- as an override flag (while running the node)
 
 We can check the RTS options baked into our static binary `cardano-node` 
 
@@ -29,17 +29,17 @@ We can check the RTS options baked into our static binary `cardano-node`
 cardano-node +RTS --info
 ```
 
-When we build our script next, we will override an RTS option to increase the threads `cardano-node` consumes from 2 to 4. 
+When we build our script, we will override an RTS option to increase the threads that `cardano-node` consumes from 2 to 4. 
 
 ## Building the script
 
-The first thing we need to do to automate the running of our node is to create a startup script. 
+The first thing we need to do to automate the running of our node is to create a startup script, as follows: 
 
 ```
 nano ~/preview/scripts/node.sh
 ```
 
-Add the following to the `node.sh` shell script we just created. 
+Then, add the following to the `node.sh` shell script that we just created: 
 
 ```
 #!/bin/bash
@@ -65,15 +65,15 @@ PORT=1694
 
 Once added, please save with `ctrl + o` and exit with `ctrl + x`
 
-You'll notice that the variables set within this bash script more-or-less match what we input when starting the node on the command line, with the exception of the RTS option added at the end of the command to run the node at the bottom of the script. 
+You will notice that the variables set within this bash script usually match what we input when starting the node on the command line, with the exception of the RTS option added at the end of the command to run the node at the bottom of the script. 
 
-Make the script executable. 
+Next, make the script executable, as follows: 
 
 ```
 chmod +x ~/preview/scripts/node.sh
 ```
 
-Test your script 
+Then, test your script, as follows:
 
 ```
 cd ~/preview/scripts
@@ -81,15 +81,15 @@ cd ~/preview/scripts
 ./node.sh
 ```
 
-You should see output similar to the following
+You should see output similar to the following:
 
 ![scrptop](/img/testnodescript.png)
 
 Kill the process once more with `ctrl + c`
 
-## Creating the Systemd Service
+## Creating the systemd service
 
-We are going to craft the service file in scripts directory we created earlier
+We are going to craft the service file in scripts directory we created earlier, as follows:
 
 ```
 cd ~/preview/scripts
@@ -97,7 +97,7 @@ cd ~/preview/scripts
 nano node.service
 ```
 
-Add the following to our service file. This service file is very basic, depending on your needs you might want to add, change, or do things differently. 
+Next, add the following to our service file. This service file is very basic, depending on your needs you might want to add, change, or do things differently. 
 
 ```
 [Unit]
@@ -123,19 +123,19 @@ WantedBy          = multi-user.target
 
 Save the file with `ctrl + o` and exit with `ctrl + x`
 
-Now let's copy our draft file to the permissioned location where services are located on our system. 
+Now, let's copy our draft file to the permissioned location where services are located on our system:
 
 ```
 sudo cp ~/preview/scripts/node.service /etc/systemd/system/
 ```
 
-We also need to ensure the service file has the appropriate permissions
+We also need to ensure the service file has the appropriate permissions:
 
 ```
 sudo chmod 0644 /etc/systemd/system/node.service
 ```
 
-Next, we need to reload the daemon so our system sees our new service file
+Next, we need to reload the daemon so our system sees our new service file:
 
 ```
 sudo systemctl daemon-reload
@@ -143,39 +143,39 @@ sudo systemctl daemon-reload
 
 :::tip
 
-Anytime a service file is changed, you'll need to reload the systemd daemon
+Not that anytime a service file is changed, you will need to reload the systemd daemon.
 
 :::
 
-Let's start the our new node service
+Let's start the our new node service:
 
 ```
 sudo systemctl start node.service
 ```
 
-Now we need to ensure our service was started successfully. 
+Now, we need to ensure our service was started successfully:
 
 ```
 sudo systemctl status node.service
 ```
 
-If all has gone well, we should be greeted with an output that states the service as `active`
+If all has gone well, you should see an output that states the service as `active`:
 
 ![active](/img/nodeserviceactive.png)
 
-If it is active, we need to then enable the service so it automatically runs on system startup. 
+If it is active, we need to enable the service so it automatically runs on system startup: 
 
 ```
 sudo systemctl enable node.service
 ```
 
-You'll see that a symlink has been created for the service
+You will see that a symlink has been created for the service:
 
 ![symlink](/img/enabledsymlink.png)
 
 Once this is done, systemd will ensure that the `cardano-node` is running the way we specified in the background, ready to use! 
 
-Just to make sure, let's query the tip of the chain. 
+Just to make sure, let's query the tip of the chain: 
 
 ```
 cardano-cli query tip --testnet-magic 2
