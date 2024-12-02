@@ -13,25 +13,25 @@ and organize raw blockchain data to suit developer needs.
 Similar to `ogmios`,
 we are going to grab a pre-compiled static `kupo` binary a server I have setup.
 
-``` bash
+```bash
 wget http://10.20.20.101:3001/kupo -O /home/n/preview/bin/kupo
 ```
 
 Let's make it executable.
 
-``` bash
+```bash
 chmod +x ~/preview/bin/kupo
 ```
 
 Let's create a startup script.
 
-``` bash
+```bash
 nano ~/preview/scripts/kupo_start.sh
 ```
 
 Copy the follwing into the `kupo_start.sh` file.
 
-``` bash
+```bash
 #!/bin/bash
 
 # Kupo configuration:
