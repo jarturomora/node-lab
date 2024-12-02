@@ -1,59 +1,67 @@
 ---
-sidebar_label: 'Ogmios'
+sidebar_label: "Ogmios"
 sidebar_position: 7
 ---
 
 # Ogmios
 
-From the developer at https://ogmios.dev/faq : *"Ogmios is a lightweight bridge interface for `cardano-node`. It offers a WebSockets API that enables local clients to speak Ouroboros' mini-protocols via JSON/RPC. Ogmios is a fast and lightweight solution that can be deployed alongside relays to create entry points on the Cardano network for various types of applications"*
+From the developer at [ogmios.dev/faq](https://ogmios.dev/faq) :
+"Ogmios is a lightweight bridge interface for `cardano-node`.
+It offers a WebSockets API that enables local clients to speak Ouroboros' mini-protocols via JSON/RPC.
+Ogmios is a fast and lightweight solution that can be deployed alongside relays to create entry points
+on the Cardano network for various types of applications"_
 
-It is a very convenient component of the Cardano ecosystem that many projects take advantage of as part of their projects. Today we are going to set it up alongside our running `cardano-node`
+It is a very convenient component of the Cardano ecosystem that many projects take advantage of as part of their projects.
+Today we are going to set it up alongside our running `cardano-node`
 
-Ok, next let's grab the latest static binary of the arm build from the developer. (Hosting this one locally on our server for ease.)
+Ok, next let's grab the latest static binary of the arm build from the developer.
+(Hosting this one locally on our server for ease.)
 
-```
+``` bash
 wget http://10.20.20.101:3001/ogmios -O /home/n/preview/bin/ogmios
 ```
 
-Let's make the binary executable. 
+Let's make the binary executable.
 
-```
+``` bash
 chmod +x ~/preview/bin/ogmios
 ```
 
-Let's make this API endpoint available externally. 
+Let's make this API endpoint available externally.
 
-```
+``` bash
 sudo ufw allow 1337/tcp
 ```
 
 Reload ufw
 
-```
+``` bash
 sudo ufw reload
 ```
 
 Check ufw status
 
-```
+``` bash
 sudo ufw status
 ```
 
-You should see port 1337 on the list. 
+You should see port 1337 on the list.
 
 ## Make a script
 
 Now we need to create a script to start `ogmios`.
 
-```
+``` bash
 nano ~/preview/scripts/ogmios_start.sh
 ```
 
-Next, let's give it the correct startup options. You'll notice some of the startup options on `ogmios` is similar to `cardano-node`. We are going to set the port to 1337, and the IP to listening at `0.0.0.0`. 
+Next, let's give it the correct startup options.
+You'll notice some of the startup options on `ogmios` is similar to `cardano-node`.
+We are going to set the port to 1337, and the IP to listening at `0.0.0.0`.
 
 Add the following to the `ogmios_start.sh` file you just opened in nano.
 
-```
+``` bash
 #!/bin/bash
 #
 /home/n/preview/bin/ogmios --node-socket /home/n/preview/socket/node.socket \
@@ -64,15 +72,15 @@ Add the following to the `ogmios_start.sh` file you just opened in nano.
 
 Save and exit `ctrl + o` and `ctrl + x`.
 
-Make the script executable. 
+Make the script executable.
 
-```
+``` bash
 chmod +x ~/preview/scripts/ogmios_start.sh
 ```
 
 Let's test the script in our terminal window.
 
-```
+``` bash
 cd ~/preview/scripts
 
 ./ogmios_start.sh
@@ -81,32 +89,32 @@ cd ~/preview/scripts
 
 While this is running, open a browser window on your machine and enter the URL of your server on port `1337`
 
-Example: http://10.20.20.101:1337
+Example: [http://10.20.20.101:1337](http://10.20.20.101:1337)
 
-You should be greeted with a nice dashboard. 
+You should be greeted with a nice dashboard.
 
 ![ogmios](/img/ogmiosdash.png)
 
 Go ahead and kill the running process in your terminal with `ctrl + c`
 
-Next, let's automate the script with systemd. 
+Next, let's automate the script with systemd.
 
 ## Make the Service
 
-Create the sample service file. 
+Create the sample service file.
 
-```
+``` bash
 nano ~/preview/scripts/ogmios.service
 ```
 
-Add the following basic systemd configuration to the file you just opened with nano. 
+Add the following basic systemd configuration to the file you just opened with nano.
 
-```
+``` bash
 [Unit]
 Description       = Ogmios
 Wants             = network-online.target
-After             = network-online.target  
-  
+After             = network-online.target
+
 [Service]
 User              = n
 Type              = simple
@@ -118,44 +126,45 @@ LimitNOFILE       = 24000
 Restart           = always
 RestartSec        = 7
 SyslogIdentifier  = ogmios
-  
+
 [Install]
 WantedBy          = multi-user.target
 ```
 
-Copy the service file to the system directory. 
+Copy the service file to the system directory.
 
-```
+``` bash
 sudo cp /home/n/preview/scripts/ogmios.service /etc/systemd/system/
 ```
 
-Give the service the correct permissions. 
+Give the service the correct permissions.
 
-```
+``` bash
 sudo chmod 0644 /etc/systemd/system/ogmios.service
 ```
+
 Reload daemons.
 
-```
+``` bash
 sudo systemctl daemon-reload
 ```
 
-Start the `ogmios` service. 
+Start the `ogmios` service.
 
-```
+``` bash
 sudo systemctl start ogmios.service
 ```
 
-Check the service. 
+Check the service.
 
-```
+``` bash
 sudo systemctl status ogmios.service
 ```
-If it shows `active`, we can enable the service. 
 
-```
+If it shows `active`, we can enable the service.
+
+``` bash
 sudo systemctl enable ogmios.service
 ```
-Go open your `ogmios` dashoboard again in your browser and proudly observe the fruits of your labor. 
 
-
+Go open your `ogmios` dashoboard again in your browser and proudly observe the fruits of your labor.
