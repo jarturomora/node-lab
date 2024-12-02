@@ -11,7 +11,7 @@ sidebar_position: 1
 
 ## Entorno del Taller
 
-Trabajarás en un Raspberry Pi 5 dedicado de nuestro laboratorio de nodos móviles. Estos dispositivos están preconfigurados para ayudarte a concentrarte en aprender las operaciones principales del nodo de Cardano en lugar de enfrentar desafíos de configuración inicial.
+Trabajarás en un Raspberry Pi 5 dedicado de nuestro laboratorio de nodos móviles. Estos dispositivos están pre-configurados para ayudarte a concentrarte en aprender las operaciones principales del nodo de Cardano en lugar de enfrentar desafíos de configuración inicial.
 
 ## Lo que Aprenderás
 
@@ -24,8 +24,8 @@ Trabajarás en un Raspberry Pi 5 dedicado de nuestro laboratorio de nodos móvil
 ## Prerrequisitos
 
 - Experiencia básica con la línea de comandos
-- Familiaridad con conceptos de blockchain
-- Cliente SSH para conectarte a tu Raspberry Pi asignado
+- Conocimiento del funcionamiento básico de una blockchain
+- Cliente SSH instalado en tu computadora para conectarte a tu Raspberry Pi asignado
 
 ## Formato del Taller
 
