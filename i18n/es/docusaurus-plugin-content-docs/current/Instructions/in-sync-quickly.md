@@ -1,41 +1,49 @@
 ---
-sidebar_label: 'Catching Up'
+sidebar_label: "Catching Up"
 sidebar_position: 3
 ---
 
 # Mithril
 
-Mithril is a stake-based multi-signature protocol for effiency and scalability. It allows the secure aggregation of cryptographic signatures (In this case, Cardano Stake Pool Operators running mithril signers with agreement on an aggregator). For our purposes, this means that a bunch of SPO's running mithril signers all sign and verify regular snapshots. The db snapshots themselves are not hosted on chain (that would be terrible), but rather hosted on a fast clour provider (Google in this case). The security and purpose comes from the cryptographic signatures that verify the snapshots. 
+Mithril es un protocolo de multi-firma basado en stake para eficiencia y escalabilidad.
+Permite la agregación segura de firmas criptográficas
+(En este caso, los operadores de stake pools de Cardano que ejecutan firmantes de mithril con acuerdo en un agregador).
+Para nuestros propósitos, esto significa que un grupo de SPOs ejecutando firmantes de mithril firman y verifican snapshots regulares.
+Los snapshots de la base de datos en sí no están alojados en la cadena (eso sería terrible),
+sino que están alojados en un proveedor de nube rápida (Google en este caso).
+La seguridad y el propósito provienen de las firmas criptográficas que verifican los snapshots.
 
-The more stake involved in signing snapshots, the more secure Mithril is. 
+Cuanto más stake esté involucrado en firmar snapshots, más seguro será Mithril.
 
-For our purposes, we will be downloading these signed snapshots using a `mithril-client-cli`. However, we are going to have to compile our own binaries this time. 
+Para nuestros propósitos, descargaremos estos snapshots firmados usando un `mithril-client-cli`.
+Sin embargo, esta vez tendremos que compilar nuestros propios binarios.
 
-Fortunately for us, this is a relatively quick process (especially compared to compiling the robust `cardano-node` in Haskell)
+Afortunadamente para nosotros, este es un proceso relativamente rápido (especialmente en comparación con compilar el robusto `cardano-node` en Haskell).
 
-Since Mithril is built with Rust, we need to install the Rust toolchain.
+Como Mithril está construido con Rust, necesitamos instalar el conjunto de herramientas de Rust.
 
-```
+``` sh
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-Hit enter through the default options. 
+Presiona Enter en las opciones predeterminadas.
 
-Once finished, source the cargo env directory. 
+Una vez finalizado, fuentea el directorio env de cargo.
 
-```
+``` sh
 . "$HOME/.cargo/env"
 ```
 
-Next, we need to install a few dependencies. 
+A continuación, necesitamos instalar algunas dependencias.
 
-```
+``` sh
 sudo apt-get install -y libssl-dev make build-essential m4
 ```
 
-Once those have installed, we are going to make a directory, clone the repo, checkout the appropriate version for `mithril-client-cli` specifically. 
+Una vez instaladas, vamos a crear un directorio, clonar el repositorio,
+y verificar la versión apropiada para `mithril-client-cli` específicamente.
 
-```
+``` sh
 mkdir ~/mithril/
 cd ~/mithril/
 
@@ -48,116 +56,131 @@ git fetch --tags --all
 git checkout 2445.0
 ```
 
-Next it's time to build it.
+A continuación, es momento de construirlo.
 
-```
+``` bash
 make build
 ```
 
 :::note
 
-While this builds, this is a good opportunity to stand up, walk around, stretch your legs, grab a coffee, talk about politics, etc.
+Mientras se construye, esta es una buena oportunidad para levantarse, caminar,
+estirar las piernas, tomar un café, hablar sobre política, etc.
 
 :::
 
 :::tip
-
-Compiling can be quite system intensive. If you'd like, while the `mithril-client` is compiling, open an another SSH session with your Raspberry Pi server and run the `htop` command to see how hard that litte machine is working. ![workwork](/img/workingharthtop.png)
+Compilar puede ser bastante intensivo para el sistema.
+Si lo deseas, mientras el `mithril-client` se compila,
+abre otra sesión SSH con tu servidor Raspberry Pi y
+ejecuta el comando `htop` para ver qué tan duro está trabajando esa pequeña máquina.
+![workwork](/img/workingharthtop.png)
 :::
 
-Once the build has finished, copy the files to the directory within your path.
+Una vez que se haya completado la construcción, copia los archivos al directorio dentro de tu ruta.
 
-```
+``` bash
 cp ~/mithril/mithril/mithril-client-cli/mithril-client ~/preview/bin/
 ```
 
-Check your `mithril-client` version.
+Verifica tu versión de `mithril-client`.
 
-```
+``` bash
 mithril-client --version
 ```
-Your output should look something like this
+
+Tu salida debería verse algo así:
 
 ![clientv](/img/mclient.png)
 
-Now we are ready to pull a snapshot down and get our node synced with the chain. 
+Ahora estamos listos para descargar un snapshot y sincronizar nuestro nodo con la cadena.
 
-First, let's set a couple of variables specific to our aggregator and network. Because we only really need to do this one time, we can just create these variables during this terminal/ssh session. 
+Primero, configuremos un par de variables específicas para nuestro agregador y red.
+Como realmente solo necesitamos hacer esto una vez,
+podemos simplemente crear estas variables durante esta sesión de terminal/ssh.
 
-First variable is the network.
+La primera variable es la red.
 
-```
+``` bash
 export CARDANO_NETWORK=preview
 ```
-Second is the aggregator endpoint.
 
-```
+La segunda es el endpoint del agregador.
+
+``` bash
 export AGGREGATOR_ENDPOINT=https://aggregator.pre-release-preview.api.mithril.network/aggregator
 ```
 
-Next is the Genesis vkey.
+A continuación, la clave de verificación Genesis.
 
-```
+``` bash
 export GENESIS_VERIFICATION_KEY=$(wget -q -O - https://raw.githubusercontent.com/input-output-hk/mithril/main/mithril-infra/configuration/pre-release-preview/genesis.vkey)
 ```
 
-Lastly, the snapshot digest.
+Por último, el digest del snapshot.
 
-```
+``` bash
 export SNAPSHOT_DIGEST=latest
 ```
 
-With that done, let's see what snapshots are available. 
+Con eso hecho, veamos qué snapshots están disponibles.
 
-```
+``` bash
 mithril-client cardano-db snapshot list
 ```
 
-As you can see, we have a menu of snapshots available to us. (Yours will look a little different since the chain reflects the passage of time and this image was not captured while you attend this workshop)
+Como puedes ver, tenemos un menú de snapshots disponibles para nosotros.
+(El tuyo se verá un poco diferente ya que la cadena refleja el paso del tiempo
+y esta imagen no fue capturada mientras asistes a este taller).
 
 ![snapshotlist](/img/snapshotlist1.png)
 
-Let's expand the details on one of the snapshots. The snapshot I am going to use in these examples is not going to be the newest snapshot available by the time of this event, so if you'd like the most up-to-date snapshot, I recommend viewing your list and grabbing the most recent. (You could use mine, it will just take slightly longer to sync, though not by too much)
+Ampliemos los detalles de uno de los snapshots.
+El snapshot que voy a usar en estos ejemplos no será el más reciente disponible en el momento de este evento,
+así que si deseas el snapshot más actualizado,
+recomiendo ver tu lista y tomar el más reciente. (Podrías usar el mío,
+solo tomará un poco más de tiempo sincronizar, aunque no demasiado).
 
-```
+``` bash
 mithril-client cardano-db snapshot show c7694c1bf40ab45022c0c8e5e24f9b0dfeb9410a43e51858d58b2766678bdf75
 ```
 
-This command produces the digest for the specified snapshot. This gives us critical information such as the node version.
+Este comando produce el digest para el snapshot especificado. Esto nos da información crítica como la versión del nodo.
 
 ![digest](/img/snapshotdigest15111.png)
 
 :::note
 
-Please ensure you are in the desired working directory as the snapshots are considerable in size. 
+Asegúrate de estar en el directorio de trabajo deseado ya que los snapshots son considerables en tamaño.
 
 :::
 
-Change to the preview directory. 
+Cambia al directorio preview.
 
-```
+``` bash
 cd ~/preview
 ```
 
-It's now time to download the snapshot. Please note your digest hash if you are using a newer one than on this guide.
+Es momento de descargar el snapshot. Toma nota de tu hash digest si estás usando uno más reciente que el de esta guía.
 
-```
+``` bash
 mithril-client cardano-db download c7694c1bf40ab45022c0c8e5e24f9b0dfeb9410a43e51858d58b2766678bdf75
 ```
 
-You should see something like this
+Deberías ver algo como esto:
 
 ![snapdl](/img/downloadsnap1.png)
 
 :::note
 
-Similar to when we built the `mithril-client` this is going to take a few minutes. 
+Al igual que cuando construimos el `mithril-client`, esto tomará unos minutos.
 
 :::
 
-Once the `mithril-client` has finished downloading the Preview network snapshot, it's time to run the node again and see if we can get in sync. 
+Una vez que el `mithril-client` haya terminado de descargar el snapshot de la red Preview,
+es momento de ejecutar el nodo nuevamente y ver si podemos sincronizarnos.
 
-```
+``` bash
 cardano-node run --topology ~/preview/config/topology.json \
 --database-path ~/preview/db \
 --socket-path ~/preview/socket/node.socket \
@@ -165,25 +188,26 @@ cardano-node run --topology ~/preview/config/topology.json \
 --config ~/preview/config/config.json
 ```
 
-You should again see the node startup output in your current session. 
+Deberías ver nuevamente la salida del inicio del nodo en tu sesión actual.
 
-In another session with your server, let's check on the syncing status. 
+En otra sesión con tu servidor, revisemos el estado de sincronización.
 
-```
+``` bash
 watch -n 1 cardano-cli query tip --testnet-magic 2
 ```
 
-It might take a couple of minutes for the node to start and sync, but you should eventually see the following. 
+Podría tomar un par de minutos para que el nodo comience y se sincronice, pero eventualmente deberías ver lo siguiente.
 
 :::info
 
-If you get the "socket 11 not found" error, it is because the `cardano-cli` cannot find the socket to communicate with the node. In this case, if things were done correctly, the socket file has not been created quite yet as part of the node startup process
+Si obtienes el error "socket 11 not found",
+es porque el `cardano-cli` no puede encontrar el socket para comunicarse con el nodo.
+En este caso, si las cosas se hicieron correctamente,
+el archivo socket aún no se ha creado como parte del proceso de inicio del nodo.
 
 :::
 
 ![syncprog](/img/querytipinsync1.png)
 
-Ok, time to kill the node again with `ctrl + c`, but don't worry! The next time we start the node it will pick up where it left off.
-
-
-
+Bien, es hora de detener el nodo nuevamente con `ctrl + c`, pero no te preocupes.
+La próxima vez que iniciemos el nodo continuará donde lo dejó.

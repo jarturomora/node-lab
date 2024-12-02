@@ -1,35 +1,42 @@
 ---
-sidebar_label: 'Logging, Firewall, and Monitoring'
+sidebar_label: "Logging, Firewall, and Monitoring"
 sidebar_position: 5
 ---
 
-# Logging, Firewall, and Monitoring
+# Registro, Firewall y Monitoreo
 
-## A couple of Daemons
+## Un par de Daemons
 
-Before moving forward, let's talk about and add a couple of services to our server. 
+Antes de avanzar, hablemos e instalemos un par de servicios en nuestro servidor.
 
-The first one is **fail2ban**
+El primero es **fail2ban**
 
-**fail2ban** is a daemon that monitors and bans clients that repeatedly fail authentication checks such as brute forcing SSH. 
+**fail2ban** es un daemon que monitorea y bloquea clientes que fallan repetidamente en las verificaciones de autenticación, como intentos de fuerza bruta en SSH.
 
-It is a good idea to run this on any publicly accessible server.
+Es una buena idea ejecutar esto en cualquier servidor accesible públicamente.
 
-```
+``` bash
 sudo apt-get install -y fail2ban
 ```
 
-The other generic service I'd like to install is **chrony**
+El otro servicio genérico que me gustaría instalar es **chrony**
 
-**chrony** is an implementation of the Network Time Protocol. **Cardano** is very dependent on time and requires that block producing nodes, relays, and any other node keep accurate time. This is especially critical for block producing nodes as the network expects blocks to be minted and propogated within a second (slot). With default settings **chrony** will regularly check in with publicly available ntp servers. In our case it will check with `pool.ntp.org`. While we have the ability to configure many options in `/etc/chrony.conf`, such as specifying a lower stratum NTP server, the default settings should be more than adequate for our purposes.
+**chrony** es una implementación del Protocolo de Tiempo en Red (Network Time Protocol, NTP).
+**Cardano** depende mucho del tiempo y requiere que los nodos productores de bloques, los relays y cualquier otro nodo mantengan un tiempo preciso.
+Esto es especialmente crítico para los nodos productores de bloques, ya que la red espera que los bloques sean creados y propagados dentro de un segundo (slot).
+Con la configuración predeterminada, **chrony** verificará regularmente con servidores NTP públicos.
+En nuestro caso, verificará con `pool.ntp.org`.
+Aunque podemos configurar muchas opciones en `/etc/chrony.conf`,
+como especificar un servidor NTP de menor estrato,
+la configuración predeterminada debería ser más que adecuada para nuestros propósitos.
 
-```
+``` bash
 sudo apt-get install -y chrony
 ```
 
-Once installed, check to ensure **chrony** is keeping your server in sync.
+Una vez instalado, verifica que **chrony** mantenga tu servidor sincronizado.
 
-```
+``` bash
 chronyc tracking
 ```
 
@@ -37,121 +44,129 @@ chronyc tracking
 
 ## Firewall
 
-Running any internet-accessible infrastructure requires some security measures to be taken, and the firewall is one of the most important. Today, we will be using **ufw** (uncomplicated firewall) which comes packaged with our Ubuntu server Linux distribution. **ufw** is just a simple and user friendly frontend for **iptables**, which allows us to configure IP packet filtering rules of the Linux kernel firewall.
+Ejecutar cualquier infraestructura accesible por internet requiere tomar medidas de seguridad,
+y el firewall es una de las más importantes.
+Hoy usaremos **ufw** (firewall sencillo) que viene incluido con nuestra distribución Linux del servidor Ubuntu.
+**ufw** es simplemente un frontend simple y fácil de usar para **iptables**,
+que nos permite configurar reglas de filtrado de paquetes IP del firewall del kernel de Linux.
 
-First, let's set a couple of default rules. 
+Primero, configuremos un par de reglas predeterminadas.
 
-The first default is to deny incoming traffic.
+La primera es denegar el tráfico entrante.
 
-```
+``` bash
 sudo ufw default deny incoming
 ```
 
-Next default is to allow outgoing.
+La siguiente es permitir el tráfico saliente.
 
-```
+``` bash
 sudo ufw default allow outgoing
 ```
 
-Make sure to allow the **ssh** service to be reached on your server.
+Asegúrate de permitir que el servicio **ssh** sea accesible en tu servidor.
 
-```
+``` bash
 sudo ufw allow ssh
 ```
 
 :::tip
 
-In production, it is a best practice to change the port your SSH server uses to something higher and not often used (default is port 22), as there are many scanners out there looking specifically for port 22, and many scanners start scanning at a lower number. We are not going to do this today for a couple of reasons: time, these are not publicly accessible, and these servers are not critical infrastructure.
+En producción, es una buena práctica cambiar el puerto que usa tu servidor SSH a algo más alto y menos común (el puerto predeterminado es el 22),
+ya que hay muchos escáneres que buscan específicamente el puerto 22,
+y muchos escáneres comienzan a escanear desde un número bajo.
+Hoy no haremos esto por un par de razones:
+tiempo, estos no son accesibles públicamente y estos servidores no son infraestructura crítica.
 
 :::
 
 :::danger
 
-If you skip this step and enable the firewall, you will no longer be able to access your server!
+¡Si omites este paso y habilitas el firewall, ya no podrás acceder a tu servidor!
 
 :::
 
+Hagamos que el puerto de nuestro `cardano-node` esté disponible.
 
-Let's make our `cardano-node` port available.
-
-```
+``` bash
 sudo ufw allow 1694/tcp
 ```
 
 :::info
 
-The `cardano-node` node-to-node (NtN) protocol was designed to facilitate two-way communication over a single outgoing `TCP/IP` connection. This means that we can connect with many other nodes even if we did not allow incoming connections on our specified port.
+El protocolo nodo-a-nodo (NtN) de `cardano-node` fue diseñado para facilitar la comunicación bidireccional sobre una sola conexión de `TCP/IP` saliente.
+Esto significa que podemos conectarnos con muchos otros nodos incluso si no permitimos conexiones entrantes en nuestro puerto especificado.
 
 :::
 
-Next we need to open the port for the Prometheus node exporter (more on that in a minute...)
+A continuación, necesitamos abrir el puerto para el exportador de nodo de Prometheus (hablaremos más de esto en un momento...).
 
-```
+``` bash
 sudo ufw allow 9100/tcp
 ```
 
-Then let's open the port to our `cardano-node` Prometheus exporter.
+Luego, abramos el puerto para el exportador Prometheus de nuestro `cardano-node`.
 
-```
+``` bash
 sudo ufw allow 12798/tcp
 ```
 
-Finally, let's enable the firewall. 
+Finalmente, habilitemos el firewall.
 
-```
+``` bash
 sudo ufw enable
 ```
 
-Then reload it.
+Luego recárgalo.
 
-```
+``` bash
 sudo ufw reload
 ```
 
-If everything was done correctly your SSH session should still be active.
+Si todo se hizo correctamente, tu sesión SSH debería seguir activa.
 
-Let's get an overview of our rules real quick.
+Obtenemos una vista general de nuestras reglas rápidamente.
 
-```
+``` bash
 sudo ufw status
 ```
 
 ![ufwstat](/img/ufwstatus.png)
 
-## Logging and Monitoring
+## Registro y Monitoreo
 
-The next thing we need to do is to turn on some logging and monitoring for our node.
+Lo siguiente que necesitamos hacer es habilitar algunos registros y monitoreo para nuestro nodo.
 
-`cardano-node` comes with the ability to produce **Prometheus** metrics by default. 
+`cardano-node` viene con la capacidad de producir métricas **Prometheus** por defecto.
 
 :::info
 
-**Prometheus** is an open-source monitoring system
+**Prometheus** es un sistema de monitoreo de código abierto.
 
 :::
 
-To allow a **Prometheus** server to scrape data from our node, we need to make an adjustment to our node configuration file. 
+Para permitir que un servidor **Prometheus** obtenga datos de nuestro nodo, necesitamos realizar un ajuste en nuestro archivo de configuración del nodo.
 
-```
+``` bash
 nano ~/preview/config/config.json
 ```
 
-Find the `"hasPrometheus"` line and change the IP from the localhost `127.0.0.1` to listening `0.0.0.0`
+Busca la línea `"hasPrometheus"` y cambia la IP del localhost `127.0.0.1` a `0.0.0.0` para escuchar.
 
-```
+``` bash
   "hasPrometheus": [
     "0.0.0.0",
     12798
   ],
 ```
 
-We're not quite ready to save and exit the file yet, while we're in here editing, let's make a couple of adjustments to enable logging. 
+Aún no estamos listos para guardar y salir del archivo; mientras estamos aquí editando, hagamos algunos ajustes para habilitar el registro.
 
-The first we're going to change is the defaultl logging location. This will specify where logs are written if no setup scribe is configured. 
+Primero cambiaremos la ubicación predeterminada de los registros. Esto especificará dónde se escriben los registros si no se configura un scribe.
 
-Find `"defaultScribes"` and we are going to change it from Stdout to FileSK, with a path to the logs directory we created earlier. 
+Busca `"defaultScribes"` y cámbialo de Stdout a FileSK, con una ruta al directorio de registros que creamos anteriormente.
 
-```
+``` bash
   "defaultScribes": [
     [
       "FileSK",
@@ -160,9 +175,9 @@ Find `"defaultScribes"` and we are going to change it from Stdout to FileSK, wit
   ],
 ```
 
-Now we are going to specify the `"setupScribes"` output. Find the `"setupScribes"` line and modify it to match the following.
+Ahora especificaremos la salida de `"setupScribes"`. Encuentra la línea `"setupScribes"` y modifícala para que coincida con lo siguiente.
 
-```
+``` bash
     "setupScribes": [
     {
       "scFormat": "ScJson",
@@ -175,52 +190,54 @@ Now we are going to specify the `"setupScribes"` output. Find the `"setupScribes
 
 :::tip
 
-Be careful to preserve the `.json` formatting when adjusting these. It is easy to break the configuration file and prevent your node from starting by accidentally deleting a comma or causing some other syntax error.
+Ten cuidado de preservar el formato `.json` al ajustar estos.
+Es fácil romper el archivo de configuración y evitar que tu nodo se inicie al eliminar accidentalmente una coma
+o causar algún otro error de sintaxis.
 
 :::
 
-Once your `config.json` file has been updated, go ahead and save `ctrl + o` and exit `ctrl + x`
+Una vez que se haya actualizado tu archivo `config.json`, guárdalo con `ctrl + o` y sal con `ctrl + x`.
 
-To make these changes active, we need to restart the node.
+Para activar estos cambios, necesitamos reiniciar el nodo.
 
-```
+``` bash
 sudo sytemctl restart node.service
 ```
 
-Give it a few seconds and then check to make sure the service is running. 
+Dale unos segundos y luego verifica que el servicio esté en ejecución.
 
-```
+``` bash
 sudo systemctl status node.service
 ```
 
-You can also query the tip again. 
+También puedes consultar la punta nuevamente.
 
-```
+``` bash
 cardano-cli query tip --testnet-magic 2
 ```
 
 :::tip
 
-If you are getting a "socket not found" error when doing this, but your `node.service` is active, give the node a minute to startup until the socket file is created and try again.
+Si recibes un error de "socket not found" al hacer esto, pero tu `node.service` está activo,
+dale un minuto al nodo para que se inicie hasta que se cree el archivo socket y vuelve a intentarlo.
 
 :::
 
-Let's take a live look at our logs with the tail command
+Echemos un vistazo en vivo a nuestros registros con el comando tail.
 
+``` bash
+tail -f ~/preview/logs/cardano.json
 ```
-tail -f n !!  ~/preview/logs/cardano.json
-```
 
-You should see the live log output of your `cardano-node` to the `cardano.json` file being written to. 
+Deberías ver la salida en vivo de los registros de tu `cardano-node` escribiéndose en el archivo `cardano.json`.
 
-`ctrl + c` to end the command
+`ctrl + c` para finalizar el comando.
 
-Next, let's install the **Prometheus** node exporter. 
+A continuación, instalemos el exportador de nodo de **Prometheus**.
 
-```
+``` bash
 sudo apt-get install -y prometheus-node-exporter
 ```
 
-This automatically starts the service and the **Prometheus** server I have configured should be able to scrape your server as an endpoint. You should be able to see your node stats appear on the **Grafana** dashboard now.
-
-
+Esto inicia automáticamente el servicio y el servidor **Prometheus** que he configurado debería poder obtener datos de tu servidor como un endpoint.
+Deberías poder ver las estadísticas de tu nodo aparecer en el panel de **Grafana** ahora.

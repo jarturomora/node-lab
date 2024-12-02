@@ -1,94 +1,95 @@
 ---
-sidebar_label: 'Getting Started'
+sidebar_label: "Getting Started"
 sidebar_position: 1
 ---
 
-# Getting Started
+# Introducción
 
-### Welcome to the Cardano node workshop!
+### Bienvenido al taller de nodos de Cardano
 
-## Connecting to your server via SSH
+## Conexión a tu servidor vía SSH
 
-The first thing we need to do is connect to your server via secure shell (SSH). 
+Lo primero que necesitamos hacer es conectarnos a tu servidor mediante secure shell (SSH).
 
-Mac OSX and Linux (most distros) have the SSH client already installed. If you have a Windows machine, you'll need to install [putty](https://www.putty.org/)
+Mac OSX y Linux (la mayoría de las distribuciones) ya tienen el cliente SSH instalado. Si tienes una máquina Windows, necesitarás instalar [putty](https://www.putty.org/).
 
-You will be handed a card with your server IP, user and password printed on it. You will use these credentials to login to your Raspberry Pi server via SSH. 
+Se te entregará una tarjeta con la IP de tu servidor, usuario y contraseña impresos en ella.
+Usarás estas credenciales para iniciar sesión en tu servidor Raspberry Pi mediante SSH.
 
 :::warning
 
-We are not going to use a best practice for SSH today as we are relaxing security for ease of use for this lab exercise. In a production environment you will need to harden your SSH server connection methods. 
+Hoy no usaremos las mejores prácticas para SSH, ya que estamos relajando la seguridad para facilitar este ejercicio práctico.
+En un entorno de producción necesitarás reforzar tus métodos de conexión SSH al servidor.
 
-The following examples are ways to harden SSH: 
-- Change default SSH port from 22 to a much higher number. 22 is commonly scanned and attacked via brute-force attacks and scanners typically start and ascend when looking for opened ports. 
-- Disable password authentication and use generated SSH keys only. 
-- Configure firewall to only allow SSH connections from specific IPs that you own.
-- Install `fail2ban` or similar to limit authentication attempts to your server.
-- Configure a tunnel between devices using something like `wireguard` or `openvpn` between client and server.
+Los siguientes son ejemplos de cómo reforzar SSH:
+
+- Cambiar el puerto SSH predeterminado del 22 a un número mucho más alto.
+  El puerto 22 es comúnmente escaneado y atacado mediante ataques de fuerza bruta y los escáneres suelen comenzar desde números bajos al buscar puertos abiertos.
+- Deshabilitar la autenticación por contraseña y usar solo claves SSH generadas.
+- Configurar el firewall para permitir conexiones SSH solo desde IPs específicas que poseas.
+- Instalar `fail2ban` o algo similar para limitar los intentos de autenticación en tu servidor.
+- Configurar un túnel entre dispositivos usando algo como `wireguard` o `openvpn` entre cliente y servidor.
 
 :::
 
-First, we need to connecdt to your device with SSH. 
+Primero, necesitamos conectarnos a tu dispositivo con SSH.
 
-For Mac OSX and Linux, use the following command. 
+Para Mac OSX y Linux, usa el siguiente comando:
 
-```
+``` bash
 ssh n@10.20.20.X
 ```
 
-For putty users, make sure port is `22`, protocol or connection type is `ssh` and that your IP is correct. Then `open` the connection. 
+Para los usuarios de putty, asegúrate de que el puerto sea `22`, el protocolo o tipo de conexión sea `ssh` y que tu IP sea correcta. Luego `abre` la conexión.
 
 ![putty1](/img/putty1.png)
 
 :::tip
 
-Replace the `X`, or whatever is in the last octet in `10.20.20.X` with the correct information on your credential card. 
+Reemplaza la `X`, o lo que sea que esté en el último octeto en `10.20.20.X`, con la información correcta en tu tarjeta de credenciales.
 
-::: 
+:::
 
-## Time to get started!
+## Es hora de comenzar
 
-Once you have connected it is time to get started!
+Una vez que te hayas conectado, ¡es hora de comenzar!
 
-Before we get rolling, let's check for updates/upgrades to our server.
+Antes de avanzar, verifiquemos si hay actualizaciones/mejoras en nuestro servidor.
 
-```
+``` bash
 sudo apt-get update -y && sudo apt-get upgrade -y
 ```
 
-Next, let's make a few working directories
+A continuación, creemos algunos directorios de trabajo:
 
-```
+``` bash
 cd
 mkdir -p preview/{node,config,socket,test-db,scripts,bin,logs}
 ```
 
-Now, let's add a few path items to our `.bashrc` file
+Ahora, añadamos algunos elementos de ruta a nuestro archivo `.bashrc`.
 
-Open your `.bashrc` file with a text editor
+Abre tu archivo `.bashrc` con un editor de texto:
 
-```
+``` bash
 nano ~/.bashrc
 ```
-Then, copy the following export lines and paste them at the end of the `.bashrc` file
 
-```
+Luego, copia las siguientes líneas de exportación y pégalas al final del archivo `.bashrc`:
+
+``` bash
 export PATH="/home/n/preview/bin:$PATH"
 export CARDANO_NODE_SOCKET_PATH="/home/n/preview/socket/node.socket"
 ```
-Save with `ctrl + o` and exit the editor with `ctrl + x`
 
+Guarda con `ctrl + o` y sal del editor con `ctrl + x`.
 
-Let's source our bash file and then check our paths
+Fuenteemos nuestro archivo bash y luego verifiquemos nuestras rutas:
 
-```
+``` bash
 cd
 . .bashrc
 echo $PATH $CARDANO_NODE_SOCKET_PATH
 ```
 
-You should see the `/home/n/preview/bin:/home/n/` and `/home/n/preview/socket/node.socket` paths as part of the output
-
-
-
-
+Deberías ver las rutas `/home/n/preview/bin:/home/n/` y `/home/n/preview/socket/node.socket` como parte de la salida.

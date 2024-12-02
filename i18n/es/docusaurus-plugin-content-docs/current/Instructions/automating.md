@@ -1,110 +1,119 @@
 ---
-sidebar_label: 'Automating Things'
+sidebar_label: "Automating Things"
 sidebar_position: 4
 ---
 
-# Automating the Node
+# Automatizando el Nodo
 
 :::info
 
-Before going too much further, I'd like to talk about RTS options for `cardano-node`
+Antes de avanzar demasiado, me gustaría hablar sobre las opciones RTS para `cardano-node`.
 
 :::
 
-**RTS** stands for Runtime System, which is a software layer for Haskell programs that allows for the customization of thing such as: 
-- Memory Management
-- Garbage Collection
-- Concurrency and parallelism
-- Exception handling
+**RTS** significa Runtime System, que es una capa de software para programas Haskell que permite la personalización de cosas como:
 
-RTS options are a Haskell specific feature that the `cardano-node` takes specific advantage of.
+- Gestión de Memoria
+- Recolección de Basura
+- Concurrencia y paralelismo
+- Manejo de excepciones
 
-These options can be implemented by:
-- during the compliling of the node
-- as an override flag while running the node
+Las opciones RTS son una característica específica de Haskell que el `cardano-node` aprovecha específicamente.
 
-We can check the RTS options baked into our static binary `cardano-node` 
+Estas opciones pueden ser implementadas:
 
-```
+- durante la compilación del nodo
+- como un flag de anulación mientras se ejecuta el nodo
+
+Podemos verificar las opciones RTS integradas en nuestro binario estático `cardano-node`:
+
+``` bash
 cardano-node +RTS --info
 ```
 
-When we build our script next, we will override an RTS option to increase the threads `cardano-node` consumes from 2 to 4. 
+Cuando construyamos nuestro script, anularemos una opción RTS para aumentar los threads que `cardano-node` consume de 2 a 4.
 
-## Building the script
+## Construyendo el script
 
-The first thing we need to do to automate the running of our node is to create a startup script. 
+Lo primero que necesitamos para automatizar la ejecución de nuestro nodo es crear un script de inicio.
 
-```
+``` bash
 nano ~/preview/scripts/node.sh
 ```
 
-Add the following to the `node.sh` shell script we just created. 
+Añade lo siguiente al script `node.sh` que acabamos de crear:
 
-```
+``` bash
 #!/bin/bash
 #
-# We will set a few variables to shorten our launch command
-# Database Path
+# Configuraremos algunas variables para acortar nuestro comando de inicio
+# Ruta de la base de datos
 DB=/home/n/preview/db
-# Socket Path
+# Ruta del socket
 SOCKET=/home/n/preview/socket/node.socket
-# Configuration File
+# Archivo de configuración
 CONFIG=/home/n/preview/config/config.json
-# Topology File
+# Archivo de topología
 TOPOLOGY=/home/n/preview/config/topology.json
-# Host Address. We will set this to 'listen' for incoming connections
+# Dirección del host. Lo configuraremos para 'escuchar' conexiones entrantes
 HOST=0.0.0.0
-# Please change <your port> to the port for either your block producing node or relay
+# Cambia <your port> al puerto de tu nodo productor de bloques o relay
 PORT=1694
 #
-# Command to run the node
+# Comando para ejecutar el nodo
 #
-/home/n/preview/bin/cardano-node run --topology $TOPOLOGY --database-path $DB --socket-path $SOCKET --port $PORT --config $CONFIG --host-addr $HOST +RTS -N4
+/home/n/preview/bin/cardano-node run --topology $TOPOLOGY \
+    --database-path $DB \
+    --socket-path $SOCKET \
+    --port $PORT \
+    --config $CONFIG \
+    --host-addr $HOST +RTS -N4
 ```
 
-Once added, please save with `ctrl + o` and exit with `ctrl + x`
+Una vez añadido, guarda con `ctrl + o` y sal con `ctrl + x`.
 
-You'll notice that the variables set within this bash script more-or-less match what we input when starting the node on the command line, with the exception of the RTS option added at the end of the command to run the node at the bottom of the script. 
+Notarás que las variables configuradas en este script bash coinciden más o menos con lo que ingresamos al iniciar el nodo en la línea de comandos,
+con la excepción de la opción RTS añadida al final del comando para ejecutar el nodo.
 
-Make the script executable. 
+Haz que el script sea ejecutable.
 
-```
+``` bash
 chmod +x ~/preview/scripts/node.sh
 ```
 
-Test your script 
+Prueba tu script:
 
-```
+``` bash
 cd ~/preview/scripts
 
 ./node.sh
 ```
 
-You should see output similar to the following
+Deberías ver una salida similar a la siguiente:
 
 ![scrptop](/img/testnodescript.png)
 
-Kill the process once more with `ctrl + c`
+Detén el proceso nuevamente con `ctrl + c`.
 
-## Creating the Systemd Service
+## Creando el Servicio Systemd
 
-We are going to craft the service file in scripts directory we created earlier
+Vamos a crear el archivo de servicio en el directorio de scripts que creamos anteriormente:
 
-```
+``` bash
 cd ~/preview/scripts
 
 nano node.service
 ```
 
-Add the following to our service file. This service file is very basic, depending on your needs you might want to add, change, or do things differently. 
+Añade lo siguiente a nuestro archivo de servicio.
+Este archivo es muy básico; dependiendo de tus necesidades, puedes querer añadir, cambiar o hacer cosas de manera diferente.
 
-```
+``` bash
 [Unit]
 Description       = Cardano Node
 Wants             = network-online.target
-After             = network-online.target  
-  
+After             = network-online.target
+
 [Service]
 User              = n
 Type              = simple
@@ -116,73 +125,71 @@ LimitNOFILE       = 24000
 Restart           = always
 RestartSec        = 7
 SyslogIdentifier  = cardano-node
-  
- [Install]
+
+[Install]
 WantedBy          = multi-user.target
 ```
 
-Save the file with `ctrl + o` and exit with `ctrl + x`
+Guarda el archivo con `ctrl + o` y sal con `ctrl + x`.
 
-Now let's copy our draft file to the permissioned location where services are located on our system. 
+Ahora, copiemos nuestro archivo al directorio donde los servicios están ubicados en nuestro sistema:
 
-```
+``` bash
 sudo cp ~/preview/scripts/node.service /etc/systemd/system/
 ```
 
-We also need to ensure the service file has the appropriate permissions
+También necesitamos asegurarnos de que el archivo de servicio tenga los permisos apropiados:
 
-```
+``` bash
 sudo chmod 0644 /etc/systemd/system/node.service
 ```
 
-Next, we need to reload the daemon so our system sees our new service file
+A continuación, necesitamos recargar el demonio para que nuestro sistema reconozca el nuevo archivo de servicio:
 
-```
+``` bash
 sudo systemctl daemon-reload
 ```
 
 :::tip
 
-Anytime a service file is changed, you'll need to reload the systemd daemon
+Cada vez que se cambie un archivo de servicio, necesitas recargar el demonio systemd.
 
 :::
 
-Let's start the our new node service
+Iniciemos nuestro nuevo servicio de nodo:
 
-```
+``` bash
 sudo systemctl start node.service
 ```
 
-Now we need to ensure our service was started successfully. 
+Ahora necesitamos asegurarnos de que nuestro servicio se haya iniciado exitosamente:
 
-```
+``` bash
 sudo systemctl status node.service
 ```
 
-If all has gone well, we should be greeted with an output that states the service as `active`
+Si todo ha salido bien, deberíamos ver una salida que indique que el servicio está `active`:
 
 ![active](/img/nodeserviceactive.png)
 
-If it is active, we need to then enable the service so it automatically runs on system startup. 
+Si está activo, necesitamos habilitar el servicio para que se ejecute automáticamente al iniciar el sistema.
 
-```
+``` bash
 sudo systemctl enable node.service
 ```
 
-You'll see that a symlink has been created for the service
+Verás que se ha creado un enlace simbólico para el servicio:
 
 ![symlink](/img/enabledsymlink.png)
 
-Once this is done, systemd will ensure that the `cardano-node` is running the way we specified in the background, ready to use! 
+Una vez hecho esto, systemd se asegurará de que el `cardano-node` esté ejecutándose como especificamos en segundo plano, listo para usar.
 
-Just to make sure, let's query the tip of the chain. 
+Para asegurarnos, consultemos la punta de la cadena:
 
-```
+``` bash
 cardano-cli query tip --testnet-magic 2
 ```
 
-Hopefully you are in sync! 
+¡Con suerte, estás sincronizado!
 
 ![sync](/img/querytipinsync1.png)
-
-

@@ -1,68 +1,82 @@
 ---
-sidebar_label: 'Running the Node'
+sidebar_label: "Running the Node"
 sidebar_position: 2
 ---
 
-# Running the Cardano Node
+## Ejecutando el Nodo de Cardano
 
-### Acquire the Node
+### Adquirir el Nodo
 
-There are several options on acquiring the `cardano-node` and `cardano-cli` binaries.
+Existen varias opciones para adquirir los binarios `cardano-node` y `cardano-cli`.
 
-- Intersect offers pre-compiled static binaries on their cardano-node [releases page](https://github.com/IntersectMBO/cardano-node/releases)
-- Static or Dynamic binaries may also be built from [source](https://github.com/IntersectMBO/cardano-node)
+- Intersect ofrece binarios estáticos precompilados en su [página de lanzamientos](https://github.com/IntersectMBO/cardano-node/releases)
+- También se pueden compilar binarios estáticos o dinámicos desde el [código fuente](https://github.com/IntersectMBO/cardano-node)
 
-Neither of these options will work for this workshop however, since Raspberry Pi's run on ARM architecture (aarch64). 
+Sin embargo, ninguna de estas opciones funcionará para este taller, ya que las Raspberry Pi funcionan con la arquitectura ARM (aarch64).
 
-While Raspberry Pi5 single board computers pack a punch for their small size, compiling `cardano-node` and `cardano-cli`from source would likely take the duration of the workshop to complete.
+Aunque las computadoras de placa única Raspberry Pi5 son potentes para su tamaño reducido,
+compilar `cardano-node` y `cardano-cli`
+desde el código fuente probablemente tomaría toda la duración del taller.
 
-Also, dynamically compiled binaries require specific libraries (in our case: libsodium, secp256k1, and blst, each of which need to be compiled on their own). 
+Además, los binarios compilados dinámicamente requieren bibliotecas específicas
+(en nuestro caso: libsodium, secp256k1 y blst, cada una de las cuales necesita ser compilada por separado).
 
-So for this workshop we will lean on the gracious efforts of the [Armada Alliance](https://armada-alliance.com/), specifically efforts of ZW3RK pool, who provides statically compiled binaries for aarch64, which means that these should run on most distributions of linux as the dependent libraries are part of the compiled binary.
+Por lo tanto, para este taller nos apoyaremos en los esfuerzos generosos de la
+[Armada Alliance](https://armada-alliance.com/),
+específicamente en los esfuerzos del pool ZW3RK,
+que proporciona binarios compilados estáticamente para aarch64,
+lo que significa que estos deberían ejecutarse en la mayoría de las distribuciones de Linux
+ya que las bibliotecas dependientes son parte del binario compilado.
 
-Let's grab our statically compiled `cardano-node` and `cardano-cli` binaries from a local server (also a Raspberry Pi5) and copy them to the directory we added to our path `/home/n/preview/bin/`
+Vamos a obtener los binarios estáticos de `cardano-node` y `cardano-cli`
+de un servidor local (también una Raspberry Pi5)
+y copiarlos al directorio que añadimos a nuestro path `/home/n/preview/bin/`
 
-```
+```bash
 wget http://10.20.20.101:3001/cardano-node -O /home/n/preview/bin/cardano-node
 wget http://10.20.20.101:3001/cardano-cli -O /home/n/preview/bin/cardano-cli
 ```
-We need to ensure the binaries are executable
 
-```
+Necesitamos asegurarnos de que los binarios sean ejecutables
+
+```bash
 chmod +x /home/n/preview/bin/cardano-node /home/n/preview/bin/cardano-cli
 ```
-Lastly, let's check the versions
 
-```
+Por último, verifiquemos las versiones
+
+```bash
 cardano-cli --version
 ```
-You should see the following output
+
+Deberías ver la siguiente salida
 
 ![cli](/img/cli1.png)
 
-```
+```bash
 cardano-node --version
 ```
-Output again
+
+Salida nuevamente
 
 ![node1](/img/cnodev1.png)
 
+### Ejecutando el Nodo
 
-### Running the node
+Para ejecutarlo, el `cardano-node` requerirá algunos archivos de configuración junto con algunos parámetros de inicio.
 
-In order to run, the `cardano-node` will require some configuration files alongside a few startup flags
+El nodo requiere los siguientes archivos para funcionar como un nodo básico o relay (no productor de bloques):
 
-The node requires the following files to run as a basic node or relay (non-block-producing): 
-- **Main configuration file**: contains node settings and points to the **Shelley**, **Byron**, **Alonzo**, and **Conway** Genesis files. 
-- **Byron Genesis**: contains initial protocol parameters and instructs `cardano-node` on how to bootstrap the Byron Era of Cardano.
-- **Shelley Genesis**: contains initial protocol parameters and instructs `cardano-node` on how to bootstrap the Shelley Era of Cardano.
-- **Alonzo Genesis**: contains initial protocol parameters and instructs `cardano-node` on how to bootstrap the Alonzo Era of Cardano.
-- **Conway Genesis**: contains initial protocol parameters and instrudts `cardano-node` on how to bootstrap the Conway Era of Cardano.
-- **Topology File**: contains list of bootstrap, local, and public peers. (Peers are other nodes running Cardano)
+- **Archivo de configuración principal**: contiene configuraciones del nodo y apunta a los archivos Genesis de **Shelley**, **Byron**, **Alonzo** y **Conway**.
+- **Genesis de Byron**: contiene parámetros iniciales del protocolo e instruye a `cardano-node` cómo arrancar la Era Byron de Cardano.
+- **Genesis de Shelley**: contiene parámetros iniciales del protocolo e instruye a `cardano-node` cómo arrancar la Era Shelley de Cardano.
+- **Genesis de Alonzo**: contiene parámetros iniciales del protocolo e instruye a `cardano-node` cómo arrancar la Era Alonzo de Cardano.
+- **Genesis de Conway**: contiene parámetros iniciales del protocolo e instruye a `cardano-node` cómo arrancar la Era Conway de Cardano.
+- **Archivo de topología**: contiene la lista de peers bootstrap, locales y públicos. (Peers son otros nodos ejecutando Cardano)
 
-Let's grab these files
+Vamos a obtener estos archivos
 
-```
+```bash
 cd ~/preview/config
 
 wget https://book.world.dev.cardano.org/environments/preview/config.json
@@ -73,9 +87,9 @@ wget https://book.world.dev.cardano.org/environments/preview/alonzo-genesis.json
 wget https://book.world.dev.cardano.org/environments/preview/conway-genesis.json
 ```
 
-Now that we have the necessary files, let's try to run the node. 
+Ahora que tenemos los archivos necesarios, intentemos ejecutar el nodo.
 
-```
+```bash
 cardano-node run --topology ~/preview/config/topology.json \
 --database-path ~/preview/test-db \
 --socket-path ~/preview/socket/node.socket \
@@ -83,40 +97,44 @@ cardano-node run --topology ~/preview/config/topology.json \
 --config ~/preview/config/config.json
 ```
 
-You should see the output of your node starting up in your terminal window. 
+Deberías ver la salida de tu nodo iniciándose en tu ventana de terminal.
 
 ![nodestartup](/img/nodestartuptest1.png)
 
-The next thing I'd like you to do is to open up an additional ssh session to your Raspberry Pi server while the node runs.
+Lo siguiente que me gustaría que hagas es abrir una sesión adicional de SSH a tu servidor Raspberry Pi mientras el nodo se ejecuta.
 
-Once connected, please query the tip of the chain to see how quickly the blockchain is syncing from scratch. 
+Una vez conectado, consulta la punta de la cadena para ver qué tan rápido se está sincronizando la blockchain desde cero.
 
-```
+```bash
 cardano-cli query tip --testnet-magic 2
 ```
 
 :::note
 
-You can observe active syncing by using the watch command
-```
+Puedes observar la sincronización activa usando el comando watch
+
+```bash
 watch -n 1 cardano-cli query tip --testnet-magic 2
 ```
+
 :::
 
 :::tip
 
-The `--testnet-magic` flag allows us to specify the different testnets. For example, preprod would be `--testnet-magic 1` while mainnet is `--mainnet`
+La bandera `--testnet-magic` nos permite especificar las diferentes testnets.
+Por ejemplo, preprod sería `--testnet-magic 1`, mientras que mainnet es `--mainnet`.
 
 :::
 
-By now, it should be apparent that we just don't have the time to sync from scratch. It would likely take the duration of the session or more to finish. 
+A estas alturas, debería ser evidente que simplemente no tenemos tiempo para sincronizar desde cero.
+Probablemente tomaría toda la duración de la sesión o más para finalizar.
 
-Press `ctrl + c` in the session you currently have the node running in to stop the node.
+Presiona `ctrl + c` en la sesión donde tienes el nodo ejecutándose actualmente para detener el nodo.
 
-Once the node has been stopped, remove the database
+Una vez que el nodo haya sido detenido, elimina la base de datos
 
-```
+```bash
 rm -r ~/preview/test-db
-``` 
+```
 
-If only there were a faster way...
+Si tan solo hubiera una manera más rápida...

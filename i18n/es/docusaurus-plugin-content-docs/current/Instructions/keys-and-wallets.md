@@ -1,52 +1,58 @@
 ---
-sidebar_label: 'Keys and Addresses'
+sidebar_label: "Keys and Addresses"
 sidebar_position: 6
 ---
 
-# Keys and Addresses
+# Claves y Direcciones
 
-## Keys
+## Claves
 
-We are now going to create payment keys, staking keys, addresses as well as submitting a simple transaction. 
+Ahora vamos a crear claves de pago, claves de staking, direcciones, y también enviar una transacción simple.
 
-### Payment Keys
+### Claves de Pago
 
-Let's start by creating a couple directories to house our keys and addresses.
+Comencemos creando un par de directorios para alojar nuestras claves y direcciones.
 
 :::danger
 
-We are not following best practices here. If you are creating payment or other key pairs that require security on mainnet or that interact with real funds, you **MUST** store the secret keys in an offline manner. 
+No estamos siguiendo las mejores prácticas aquí.
+Si estás creando pares de claves de pago u otras claves que requieren seguridad en mainnet o que interactúan con fondos reales,
+**DEBES** almacenar las claves secretas de manera offline.
 
 :::
 
-```
+``` bash
 mkdir -p  ~/preview/{wallet1,wallet2}
 cd ~/preview/wallet1
 ```
 
-The first key pair we are going to create is the payment key pair for our "wallet1". This set of keys allow for the holding and transfer of ada and other native assets. 
+El primer par de claves que vamos a crear es el par de claves de pago para nuestro "wallet1".
+Este conjunto de claves permite mantener y transferir ada y otros activos nativos.
 
-```
+``` bash
 cardano-cli address key-gen \
 --verification-key-file ~/preview/wallet1/payment.vkey \
 --signing-key-file ~/preview/wallet1/payment.skey
 ```
 
-### Staking Keys
+### Claves de Staking
 
-The next pair we are going to create is a staking key pair for wallet1. This allows us to generate an address using **BOTH** payment and staking keys that allows us to stake on the Cardano blockchain. We can derive an addres from **just** the payment keys, and that would be considered an *Enterprise* address, which cannot participate in staking.
+El siguiente par que vamos a crear es un par de claves de staking para wallet1.
+Esto nos permite generar una dirección usando **AMBAS** claves de pago y staking que nos permite hacer staking en la blockchain de Cardano.
+Podemos derivar una dirección usando **solo** las claves de pago,
+y eso se consideraría una dirección _Enterprise_, que no puede participar en el staking.
 
-```
+``` bash
 cardano-cli conway stake-address key-gen \
 --verification-key-file ~/preview/wallet1/stake.vkey \
 --signing-key-file ~/preview/wallet1/stake.skey
 ```
 
-### Address
+### Dirección
 
-Next we are going to build an address using the verification (public) keys of the payment and stake key pairs we just created for wallet1. 
+A continuación, vamos a construir una dirección usando las claves de verificación (públicas) del par de claves de pago y staking que acabamos de crear para wallet1.
 
-```
+``` bash
 cardano-cli address build \
 --payment-verification-key-file ~/preview/wallet1/payment.vkey \
 --stake-verification-key-file stake.vkey \
@@ -54,93 +60,96 @@ cardano-cli address build \
 --out-file ~/preview/wallet1/payment.addr
 ```
 
-Once this is done, concatenate the payment.addr file. 
+Una vez hecho esto, concatena el archivo payment.addr.
 
-```
+``` bash
 cat ~/preview/wallet1/payment.addr
 ```
 
 ![paymentaddr](/img/paymentaddrw1.png)
 
-Copy this output and send me your payment address via email at jesse.smith@iohk.io
+Copia esta salida y envíame tu dirección de pago por correo electrónico a jesse.smith@iohk.io
 
 :::info
 
-Normally a person would use the Preview testnet faucet to request funds, but the faucet has measures built in to prevent bots or individuals from spamming requests for funds. 
+Normalmente, una persona usaría el faucet de la testnet Preview para solicitar fondos,
+pero el faucet tiene medidas incorporadas para evitar que bots o individuos realicen solicitudes de fondos repetidamente.
 
 :::
 
 ### Wallet 2
 
-While we work on sending funds to participants, let's move onto the next step and create our second "wallet", wallet2
+Mientras trabajamos en enviar fondos a los participantes, sigamos al siguiente paso y creemos nuestra segunda "wallet", wallet2.
 
-```
+``` bash
 cd ~/preview/wallet2
 ```
 
-This time, we are going to create a simple Enterprise address without the ability to participate in staking. 
+Esta vez, vamos a crear una dirección Enterprise simple sin la capacidad de participar en el staking.
 
-First, the payment key pair again. 
+Primero, el par de claves de pago nuevamente.
 
-```
+``` bash
 cardano-cli address key-gen \
 --verification-key-file ~/preview/wallet2/payment.vkey \
 --signing-key-file ~/preview/wallet2/payment.skey
 ```
 
-### Enterprise Address
+### Dirección Enterprise
 
-From here, we simply build the address using our verification key file. 
+A partir de aquí, simplemente construimos la dirección usando nuestro archivo de clave de verificación.
 
-```
+``` bash
 cardano-cli address build \
 --payment-verification-key-file ~/preview/wallet2/payment.vkey \
 --out-file ~/preview/wallet2/payment.addr \
 --testnet-magic 2
 ```
 
-Once I have sent ada to the first address you created (in wallet1), let's query the UTxOs belonging to your payment address. 
+Una vez que haya enviado ada a la primera dirección que creaste (en wallet1), consultemos los UTxOs pertenecientes a tu dirección de pago.
 
-```
+``` bash
 cardano-cli query utxo --address $(cat ~/preview/wallet1/payment.addr) --testnet-magic 2
 ```
 
 :::tip
 
-This may take a second, don't panic.
+Esto puede tomar un segundo, no entres en pánico.
 
 :::
 
-You should see an output containing the TxHash, TxIx value, and the amount of ada contained on the UTxO in lovelaces. 
+Deberías ver una salida que contiene el TxHash, el valor de TxIx y la cantidad de ada contenida en el UTxO en lovelaces.
 
 ![utxo1](/img/utxo1.png)
 
 :::note
 
-1000000 lovelaces equals 1 ada. When using `cardano-cli` we will always input values in lovelaces
+1000000 lovelaces equivalen a 1 ada. Al usar `cardano-cli`, siempre ingresaremos valores en lovelaces.
 
 :::
 
+Una vez que confirmes que tu wallet tiene un UTxO válido con una cantidad de ada asociada,
+crearemos y enviaremos una transacción simple usando `cardano-cli`.
 
-Once you confirm that your wallet has a valid UTxO with an amount of ada associated with it, we will craft and submit a simple transaction using `cardano-cli`.
+Primero, hagamos un directorio para alojar nuestros archivos de transacción.
 
-First, let's make a directory to house our transaction files. 
-
-```
+``` bash
 mkdir ~/preview/tx
 cd ~/preview/tx
 ```
-For this first transaction, we are going to send a small amount of ada from "wallet1" to "wallet2".
 
-Let's build the transaction.
+Para esta primera transacción, enviaremos una pequeña cantidad de ada de "wallet1" a "wallet2".
+
+Construyamos la transacción.
 
 :::tip
 
-Please ensure you replace the carroted utxo hash text and the txix text with your actual utxo information obtained form the `query utxo` command we did earlier.
+Please ensure you replace the carroted utxo hash text and the txix text with your actual utxo
+information obtained form the `query utxo` command we did earlier.
 
 :::
 
-```
+``` bash
 cardano-cli conway transaction build \
 --socket-path /home/n/preview/socket/node.socket \
 --testnet-magic 2 \
@@ -150,56 +159,58 @@ cardano-cli conway transaction build \
 --out-file ~/preview/tx/tx1.raw
 ```
 
-You should see at the bottom of the command an Estimated fee in lovelace for the transaction. 
+Deberías ver en la parte inferior del comando una tarifa estimada en lovelace para la transacción.
 
 ![fee1](/img/estfee1.png)
 
-Once we have the transaction file build (`tx1.raw`), let's sign the transaction with the wallet1 `payment.skey`.
+Una vez que hayamos construido el archivo de transacción (`tx1.raw`), firmemos la transacción con el `payment.skey` de wallet1.
 
-```
+``` bash
 cardano-cli conway transaction sign --tx-body-file ~/preview/tx/tx1.raw \
 --signing-key-file ~/preview/wallet1/payment.skey \
 --out-file ~/preview/tx/tx1.signed
 ```
 
-Once we have signed the transaction, it's time to submit! 
+Una vez que hayamos firmado la transacción, ¡es hora de enviarla!
 
-```
+``` bash
 cardano-cli conway transaction submit --tx-file ~/preview/tx/tx1.signed \
 --socket-path /home/n/preview/socket/node.socket \
 --testnet-magic 2
 ```
 
-If all was done correctly, you will be greeted with a success notification. 
+Si todo se hizo correctamente, serás recibido con una notificación de éxito.
 
 ![success](/img/txsub1.png)
 
+Ahora verifiquemos las direcciones de wallet1 y wallet2 para ver qué UTxOs contienen ahora.
 
-Let's now check the addresses of wallet1 and wallet2 to see what UTxOs they now contain. 
-
-```
+``` bash
 cardano-cli query utxo --address $(cat ~/preview/wallet1/payment.addr) --testnet-magic 2
 ```
+
 ![utx1](/img/w1utxo1.png)
 
-and for wallet2
+y para wallet2:
 
-```
+``` bash
 cardano-cli query utxo --address $(cat ~/preview/wallet2/payment.addr) --testnet-magic 2
 ```
 
 ![utx2](/img/w2utxo1.png)
 
-What do you notice? 
+¿Qué notas?
 
 :::info
 
-At this point, we have created a transaction with `cardano-cli` in the simplest possible way. However, we can add to what we have just done. 
+En este punto, hemos creado una transacción con `cardano-cli` de la manera más simple posible. Sin embargo, podemos añadir más a lo que acabamos de hacer.
 
-Extra credit exercises: 
-- Create a wallet3
-- Send 10 ada each to wallet3 and wallet2 from wallet1, consuming a single UTxO
-- Send 10 ada each from wallet1 and from wallet2 to wallet3 (20 ada total) in a single transaction
-- Create a transaction using `build-raw` instead of `build` (you will need to manually calculate fee, lovelaces, change, ttl, etc.)
+Ejercicios de crédito extra:
 
-If you want to try to build a tx with `build-raw` follow the instructions here: https://developers.cardano.org/docs/get-started/cardano-cli/get-started/simple-transactions
+- Crea una wallet3.
+- Envía 10 ada a wallet3 y wallet2 desde wallet1, consumiendo un único UTxO.
+- Envía 10 ada desde wallet1 y wallet2 a wallet3 (20 ada en total) en una sola transacción.
+- Crea una transacción usando `build-raw` en lugar de `build` (necesitarás calcular manualmente la tarifa, lovelaces, cambio, ttl, etc.).
+
+Si deseas intentar construir una transacción con `build-raw`, sigue las instrucciones aquí:
+[developers.cardano.org](https://developers.cardano.org/docs/get-started/cardano-cli/get-started/simple-transactions)
