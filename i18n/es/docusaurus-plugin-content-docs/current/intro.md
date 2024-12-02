@@ -5,32 +5,32 @@ title: Workshop Introduction
 sidebar_position: 1
 ---
 
-# Workshop Introduction
+# Introducción al Workshop
 
-Welcome to the Cardano Node Workshop! This hands-on workshop, presented by Input Output, will guide you through setting up and using a Cardano node. Over the next 4 hours, you'll learn essential skills for working with the Cardano blockchain using our mobile node lab.
+¡Bienvenido al Cardano Node Workshop! Este workshop práctico, presentado por Input Output, te guiará a través de la configuración y el uso de un nodo de Cardano. Durante las próximas 4 horas, aprenderás habilidades esenciales para trabajar con la blockchain de Cardano utilizando nuestro laboratorio móvil de nodos.
 
-## Workshop Environment
+## Entorno del Workshop
 
-You'll be working on a dedicated Raspberry Pi 5 from our mobile node lab. These devices are pre-configured to help you focus on learning core Cardano node operations rather than initial setup challenges.
+Trabajarás en un Raspberry Pi 5 dedicado de nuestro laboratorio móvil de nodos. Estos dispositivos están pre-configurados para ayudarte a concentrarte en aprender las operaciones principales del nodo de Cardano en lugar de enfrentarte a los desafíos iniciales de configuración.
 
-## What You'll Learn
+## Lo que aprenderás
 
-- Setting up and syncing a `cardano-node` using `mithril`
-- Creating and managing keys and addresses
-- Executing transactions on the Preview network
-- Configuring logging for effective monitoring
-- (If there is time): Configuring `kupo` and `ogmios`
+- Configurar y sincronizar un `cardano-node` utilizando `mithril`
+- Crear y gestionar claves y direcciones
+- Ejecutar transacciones en la red Preview
+- Configurar el registro de logs para un monitoreo efectivo
+- (Si hay tiempo): Configurar `kupo` y `ogmios`
 
-## Prerequisites
+## Requisitos previos
 
-- Basic command line experience
-- Familiarity with blockchain concepts
-- SSH client for connecting to your assigned Raspberry Pi
+- Experiencia básica en el uso de la línea de comandos
+- Conocimiento de los conceptos básicos de blockchain
+- Tener instalado un cliente SSH en tu computadora para conectarte a tu Raspberry Pi asignado
 
-## Workshop Format
+## Formato del Workshop
 
-This is a practical, hands-on session where you'll work directly with Cardano tools and infrastructure on your assigned node. Each participant will have dedicated hardware to experiment with throughout the workshop.
+Esta es una sesión práctica donde trabajarás directamente con las herramientas e infraestructura de Cardano en tu nodo asignado. Cada participante contará con hardware dedicado para experimentar durante el workshop.
 
-:::tip Ready to start?
-Let's begin by connecting to your Raspberry Pi.
+:::tip ¿Listo para empezar?
+Comencemos conectándonos a tu Raspberry Pi.
 :::
